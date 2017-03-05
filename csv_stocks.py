@@ -46,6 +46,7 @@ with open('stocks.csv', 'wb') as csvfile:
     writer.writerow(('',) + get_dates())
     for stock in stocks:
         share = Share(stock)
+        share.refresh()     # Refresh data from yahoo_finance
         history = share.get_historical(start_date.isoformat(), end_date.isoformat())
         row = (stock, ) + get_prices(history)
         writer.writerow(row)
