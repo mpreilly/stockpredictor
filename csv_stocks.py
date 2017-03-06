@@ -3,7 +3,7 @@ import csv
 from datetime import date
 from datetime import timedelta
 
-stocks = ['AMD']
+stocks = ['AMD', 'MU', 'BKS']
 start_date = date(2016, 3, 3)
 end_date = date.today()
 

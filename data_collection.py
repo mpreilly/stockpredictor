@@ -9,7 +9,9 @@ from datetime import timedelta
 # Classifiers: 0 = decrease on sixth day, 1 = modest increase (0-3%),
 # 2 = large increase (>3%)
 
-stocks = ['AMD']
+# Learn on AMD, MU, BKS, with 1 year data
+# Test on NVDA, SQ, MRVL with ~half year data
+stocks = ['AMD', 'MU', 'BKS']
 start_date = date(2016, 3, 3)
 end_date = date.today()
 
@@ -17,8 +19,9 @@ def get_change(info, prevPrice):
     change = 100 * ((float(info.get('Close')) - float(prevPrice)) / float(prevPrice))
     return change
 
-with open('learning_data.csv', 'wb') as csvfile:
+with open('training_data.csv', 'wb') as csvfile:
     writer = csv.writer(csvfile)
+    writer.writerow(('Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Class'))
     for stock in stocks:
         share = Share(stock)
         share.refresh()     # Refresh data from yahoo_finance
