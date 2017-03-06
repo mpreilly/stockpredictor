@@ -48,5 +48,25 @@ with open('stocks.csv', 'wb') as csvfile:
         share = Share(stock)
         share.refresh()     # Refresh data from yahoo_finance
         history = share.get_historical(start_date.isoformat(), end_date.isoformat())
+        numDays = len(history)
         row = (stock, ) + get_prices(history)
+        writer.writerow(row)
+    writer.writerow("")
+
+with open('stocks.csv', 'rt') as csvfile:
+    reader = csv.reader(csvfile)
+    changeRows = []
+
+    for row in reader:
+        if len(row) < 1:
+            break
+        if row[0] != '':
+            changeRow = (row[0], '', )
+            for i in range(2, numDays+1):
+                changeRow += (100 * ((float(row[i]) - float(row[i-1])) / float(row[i-1])),)
+            changeRows.append(changeRow)
+
+with open('stocks.csv', 'a') as csvfile:
+    writer = csv.writer(csvfile)
+    for row in changeRows:
         writer.writerow(row)
