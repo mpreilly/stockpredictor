@@ -3,9 +3,9 @@ import csv
 from datetime import date
 from datetime import timedelta
 
-stocks = ['AMD', 'MU', 'BKS']
-start_date = date(2016, 3, 3)
-end_date = date.today()
+stocks = ['AAPL', 'FB', 'NVDA']
+start_date = date(2017, 2, 1)
+end_date = date(2017,3,1)
 
 def is_market_open(curdate):
     closed_dates = [date(2017, 1, 2),
