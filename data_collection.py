@@ -30,7 +30,7 @@ with open('learning_data.csv', 'wb') as csvfile:
         while len(history) > 5:
             info = history.pop()
             change = get_change(info, prevPrice)
-            if count == 5:
+            if count == 6:
                 if change > 3:
                     changes += (2,) #classifier: 2 = large increase
                 elif change > 0:
@@ -40,7 +40,8 @@ with open('learning_data.csv', 'wb') as csvfile:
                 count = 0
                 writer.writerow(changes)
                 changes = ()    #Set the row to empty again
+                history.append(info)    #puts the info back so it's used as an actual data point
             else:
                 changes += (change,)
                 count += 1
-            prevPrice = info.get("Close")
+                prevPrice = info.get("Close")
