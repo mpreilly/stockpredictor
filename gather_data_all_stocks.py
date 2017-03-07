@@ -1,6 +1,8 @@
 from yahoo_finance import Share
 import csv
 import random
+from datetime import date
+from datetime import timedelta
 
 all_companies = []
 training_stocks = []
@@ -21,10 +23,11 @@ print training_stocks
 #Create training csv
 with open("data/training_1day_data.csv", 'wb') as f:
     writer = csv.writer(f)
-    writer.writerow(('Closing Price', 'Percent Change', 'Volume',
+    writer.writerow(('', 'Closing Price', 'Percent Change', 'Volume',
                         'PEG Ratio', 'Short Ratio', 'Pct Change From Year High',
                         'Pct Change From Year Low', 'Pct Change from 50 day mAvg',
-                        'Ratio of price to 1 yr target price'))
+                        'Ratio of price to 1 yr target price',
+                        'Stochastic Oscillator'))
 
     for i in range(0,500):
         stock = training_stocks[i]
@@ -39,7 +42,8 @@ with open("data/training_1day_data.csv", 'wb') as f:
             training_stocks.insert(i, stock)
             share = Share(stock)
 
-        row = (share.get_price(),
+        row = (stock,
+                share.get_price(),
                 share.get_percent_change().replace("%","").replace("+",""),
                 share.get_volume(),
                 share.get_price_earnings_growth_ratio(),
@@ -52,6 +56,20 @@ with open("data/training_1day_data.csv", 'wb') as f:
         ratio_to_target = float(share.get_price()) / float(share.get_one_yr_target_price())
         row += (ratio_to_target,)
 
+        # Calculate stochastic oscillator
+        high = float(share.get_price())
+        low = float(share.get_price())
+        history = share.get_historical((date.today() - timedelta(weeks=3)).isoformat(),
+                                        (date.today() - timedelta(days=1)).isoformat())
+        for info in history:
+            if float(info.get('High')) > high:
+                high = float(info.get('High'))
+            if float(info.get('Low')) < low:
+                low = float(info.get('Low'))
+
+        sto_osc = ((float(share.get_price()) - low) / (high - low)) * 100
+        row += (sto_osc,)
+
         writer.writerow(row)
         print('%d: %s') % (i+1, stock) #show progress
 print training_stocks
@@ -63,10 +81,11 @@ for i in range(0,100):
 
 with open("data/testing_1day_data.csv", 'wb') as f:
     writer = csv.writer(f)
-    writer.writerow(('Closing Price', 'Percent Change', 'Volume',
+    writer.writerow(('', 'Closing Price', 'Percent Change', 'Volume',
                         'PEG Ratio', 'Short Ratio', 'Pct Change From Year High',
                         'Pct Change From Year Low', 'Pct Change from 50 day mAvg',
-                        'Ratio of price to 1 yr target price'))
+                        'Ratio of price to 1 yr target price',
+                        'Stochastic Oscillator'))
     for i in range(0,100):
         stock = testing_stocks[i]
         share = Share(stock)
@@ -80,7 +99,8 @@ with open("data/testing_1day_data.csv", 'wb') as f:
             testing_stocks.insert(i, stock)
             share = Share(stock)
 
-        row = (share.get_price(),
+        row = (stock,
+                share.get_price(),
                 share.get_percent_change().replace("%","").replace("+",""),
                 share.get_volume(),
                 share.get_price_earnings_growth_ratio(),
@@ -92,6 +112,20 @@ with open("data/testing_1day_data.csv", 'wb') as f:
         # put in the ratio of current price to 1 yr target price
         ratio_to_target = float(share.get_price()) / float(share.get_one_yr_target_price())
         row += (ratio_to_target,)
+
+        # Calculate stochastic oscillator
+        high = float(share.get_price())
+        low = float(share.get_price())
+        history = share.get_historical((date.today() - timedelta(weeks=3)).isoformat(),
+                                        (date.today() - timedelta(days=1)).isoformat())
+        for info in history:
+            if float(info.get('High')) > high:
+                high = float(info.get('High'))
+            if float(info.get('Low')) < low:
+                low = float(info.get('Low'))
+
+        sto_osc = ((float(share.get_price()) - low) / (high - low)) * 100
+        row += (sto_osc,)
 
         writer.writerow(row)
         print('%d: %s') % (i+1, stock) #show progress
