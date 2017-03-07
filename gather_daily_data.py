@@ -2,7 +2,9 @@ from yahoo_finance import Share
 import os.path
 import csv
 
-stocks = ['AMD', 'MU', 'AAPL','NVDA','SNAP','SQ']
+stocks = ['AMD', 'MU', 'AAPL','NVDA','SNAP','SQ','ASX','GOOG','BLKB','CA','CSCO',
+            'EA','FB', 'FIT','GRPN','HPQ','IBM','INTC','MRVL','MSFT','NOK','ORCL',
+            'YHOO','ATVI']
 
 for stock in stocks:
     path = 'data/' + stock + '.csv'
@@ -13,10 +15,12 @@ for stock in stocks:
                             'PEG Ratio', 'Short Ratio', 'Pct Change From Year High',
                             'Pct Change From Year Low', 'Pct Change from 50 day mAvg',
                             'Ratio of price to 1 yr target price'))
+    share = Share(stock)
+    share.refresh()
+    share.refresh()
+
     with open(path, 'a') as f:
         writer = csv.writer(f)
-        share = Share(stock)
-        share.refresh()
 
         row = (share.get_price(),
                 share.get_percent_change(),
