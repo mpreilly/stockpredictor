@@ -1,6 +1,7 @@
 import pandas as pd
 import tensorflow as tf
 import tempfile
+import numpy as np
 
 COLUMNS = ['Stock', 'Closing_Price', 'Percent_Change', 'Volume', 'PEG_Ratio',
             'Short_Ratio', 'Pct_Change_from_Year_High', 'Pct_Change_from_Year_Low',
@@ -20,13 +21,17 @@ data_cols = ['Closing_Price', 'Percent_Change', 'Volume', 'PEG_Ratio',
             'Short_Ratio', 'Pct_Change_from_Year_High', 'Pct_Change_from_Year_Low',
             'Pct_Change_from_50_day_Moving_Avg', 'Ratio_to_Target', 'Stochastic_Oscillator']
 
-# data_cols = ['Percent_Change', 'Volume', 'Stochastic_Oscillator']
 
 def input_fn(df):
     feature_cols = {k: tf.constant(df[k].values)
                     for k in data_cols}
     label = tf.constant(df[LABEL_COLUMN].values)
     return feature_cols, label
+
+def input_fn_predict(df):
+    feature_cols = {k: tf.constant(df[k].values)
+                    for k in data_cols}
+    return feature_cols
 
 def train_input_fn():
     return input_fn(df_train)
@@ -45,17 +50,18 @@ pct_avg = tf.contrib.layers.real_valued_column('Pct_Change_from_50_day_Moving_Av
 ratio_target = tf.contrib.layers.real_valued_column('Ratio_to_Target')
 sto_osc = tf.contrib.layers.real_valued_column('Stochastic_Oscillator')
 
+feature_columns = [closing_price, pct_change, volume, peg, short, pct_high, pct_low,
+                pct_avg, ratio_target, sto_osc]
+
 model_dir = tempfile.mkdtemp()
-m = tf.contrib.learn.LinearClassifier(feature_columns=[closing_price, pct_change,
-                volume, peg, short, pct_high, pct_low, pct_avg, ratio_target, sto_osc],
-                model_dir=model_dir)
+m = tf.contrib.learn.DNNClassifier(feature_columns=feature_columns,
+    hidden_units=[10,20,10], n_classes=2, model_dir=model_dir)
 
-# m = tf.contrib.learn.LinearClassifier(feature_columns=[pct_change,
-#                 volume, sto_osc],
-#                 model_dir=model_dir)
+m.fit(input_fn=train_input_fn, steps=200)
 
-m.fit(input_fn=train_input_fn, steps=2000)
+accuracy_score = m.evaluate(input_fn=eval_input_fn, steps=1)["accuracy"]
+print('Accuracy: {0:f}'.format(accuracy_score))
 
-results = m.evaluate(input_fn=eval_input_fn, steps=1)
-for key in sorted(results):
-    print '%s: %s' % (key, results[key])
+new = pd.read_csv('data/EA.csv',names=data_cols, skiprows=1)
+y = m.predict(input_fn=lambda: input_fn_predict(new), as_iterable=False)
+print y

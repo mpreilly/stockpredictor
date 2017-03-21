@@ -23,13 +23,13 @@ for stock in stocks:
         writer = csv.writer(f)
 
         row = (share.get_price(),
-                share.get_percent_change(),
+                share.get_percent_change().replace("%","").replace("+",""),
                 share.get_volume(),
                 share.get_price_earnings_growth_ratio(),
                 share.get_short_ratio(),
-                share.get_percent_change_from_year_high(),
-                share.get_percent_change_from_year_low(),
-                share.get_percent_change_from_50_day_moving_average())
+                share.get_percent_change_from_year_high().replace("%","").replace("+",""),
+                share.get_percent_change_from_year_low().replace("%","").replace("+",""),
+                share.get_percent_change_from_50_day_moving_average().replace("%","").replace("+",""))
 
         ratio_to_target = float(share.get_price()) / float(share.get_one_yr_target_price())
         row += (ratio_to_target,)

@@ -42,8 +42,7 @@ with open("data/training_1day_data.csv", 'wb') as f:
             training_stocks.insert(i, stock)
             share = Share(stock)
 
-        row = (stock,
-                share.get_price(),
+        row = (share.get_price(),
                 share.get_percent_change().replace("%","").replace("+",""),
                 share.get_volume(),
                 share.get_price_earnings_growth_ratio(),
