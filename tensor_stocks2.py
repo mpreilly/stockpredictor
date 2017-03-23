@@ -37,6 +37,7 @@ def makeLabelArray(file):
     #labels is an array with a row for each stock, and two columns to label each (one-hot)
     labels = np.zeros([len(splitLines), NUM_CLASSES])
 
+    negCounter = 0
     print splitLines
     # one-hot encoding: puts 1 in first col if class 1, second col if class 2
     for i, line in enumerate(splitLines):
@@ -85,3 +86,9 @@ test_features = makeFeatureArray('data/testing_1day_data.csv')
 test_labels = makeLabelArray('data/testing_1day_nextdaychanges.csv')
 # run session on test data to calculate accuracy, print
 print(sess.run(accuracy, feed_dict={inputs:test_features, true_labels:test_labels}))
+
+amd = [5.42,-2.17,12774357,0.70,2.66,-14.10,34.16,7.11,0.9202037351443124]
+amdArray = np.zeros([1, NUM_FEATURES])
+for i, item in enumerate(amd):
+    amdArray[0, i] = item
+print(sess.run(output, feed_dict={inputs:amdArray}))
