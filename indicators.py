@@ -48,34 +48,11 @@ def stochastic_oscillator(symbol):
     sto_osc = ((float(share.get_price()) - low) / (high - low)) * 100
     return sto_osc
 
+
+# Calculates the Relative Strength Index by collecting 250 days of data,
+# getting the average for the first 14 days and then updating it for each day to
+# smooth it like it is done in the real world. Matches yahoo finance RSI.
 def relative_strength_index(symbol):
-    share = Share(symbol)
-    share.refresh()
-
-    start_date = date.today() - timedelta(weeks=4)
-    history = share.get_historical(start_date.isoformat(), date.today().isoformat())
-    history = history[:15]
-
-    gain = 0
-    loss = 0
-    for i in range(0,14):
-        # final - initial, with the dates in reverse chronological order
-        change = float(history[i]['Close']) - float(history[i+1]['Close'])
-
-        if change >= 0:
-            gain += change
-        else:
-            # we want loss to be positive. Subtract negative num gives us positive
-            loss -= change
-
-    avg_gain = gain / 14
-    avg_loss = loss / 14
-
-    rs = avg_gain / avg_loss
-    rsi = 100 - (100 / (1 + rs))
-    return rsi
-
-def smooth_rsi(symbol):
     share = Share(symbol)
     share.refresh()
 
@@ -85,6 +62,8 @@ def smooth_rsi(symbol):
 
     gain = 0
     loss = 0
+
+    # first 14 days's averages
     for i in range(1, 15):
         # final - initial, with the dates in reverse chronological order
         ind = -1 * i
@@ -99,15 +78,19 @@ def smooth_rsi(symbol):
     avg_gain = gain / 14
     avg_loss = loss / 14
 
+    # update the average for each of the rest of the days, ending at most recent
     for i in range(15, len(history)):
+        gain = 0
+        loss = 0
+
         ind = -1 * i
         change = float(history[ind - 1]['Close']) - float(history[ind]['Close'])
 
         if change >= 0:
-            gain += change
+            gain = change
         else:
             # we want loss to be positive. Subtract negative num gives us positive
-            loss -= change
+            loss = -1 * change
 
         avg_gain = (avg_gain * 13 + gain) / 14
         avg_loss = (avg_loss * 13 + loss) / 14
