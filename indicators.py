@@ -3,6 +3,52 @@ from datetime import date
 from datetime import timedelta
 import numpy as np
 
+# Calculate Simple Moving Average
+def sma(symbol, numDays):
+    share = Share(symbol)
+    share.refresh()
+    prices = []
+
+    #Gather extra data to make sure we get enough for 20 days counting days off
+    start_date = date.today() - timedelta(weeks=8)
+    history = share.get_historical(start_date.isoformat(), date.today().isoformat())
+    # Cut history list to get most recent 20 days
+    history = history[:numDays]
+
+    for info in history:
+        prices.append(info['Close'])
+
+    data = np.array(prices, dtype=np.float32)
+
+    SMA = np.mean(data)
+    return SMA
+
+def ema(symbol, numDays):
+    share = Share(symbol)
+    share.refresh()
+    prices = []
+
+    start_date = date.today() - timedelta(weeks=60)
+    history = share.get_historical(start_date.isoformat(), date.today().isoformat())
+    history = history[:250]
+
+    for i in range(1, numDays + 1):
+        # starts with oldest data to calculate initial sma
+        ind = -1 * i
+        prices.append(history[ind]['Close'])
+
+    data = np.array(prices, dtype=np.float32)
+    SMA = np.mean(data)
+
+    mult = 2.0 / (numDays + 1.0)
+    EMA = SMA
+
+    for i in range(numDays + 1, len(history) + 1):
+        ind = -1 * i
+        EMA = (float(history[ind]['Close']) - EMA) * mult + EMA
+
+    return EMA
+
 def bollinger_bands(symbol):
     share = Share(symbol)
     share.refresh()
@@ -98,3 +144,5 @@ def relative_strength_index(symbol):
     rs = avg_gain / avg_loss
     rsi = 100 - (100 / (1 + rs))
     return rsi
+
+# def macd(symbol, day):
