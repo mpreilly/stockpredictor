@@ -23,7 +23,7 @@ def sma(symbol, numDays):
     SMA = np.mean(data)
     return SMA
 
-def ema(symbol, numDays):
+def ema(symbol, numDays, daysAgo=0):
     share = Share(symbol)
     share.refresh()
     prices = []
@@ -43,7 +43,7 @@ def ema(symbol, numDays):
     mult = 2.0 / (numDays + 1.0)
     EMA = SMA
 
-    for i in range(numDays + 1, len(history) + 1):
+    for i in range(numDays + 1, (len(history) + (1 - daysAgo))):
         ind = -1 * i
         EMA = (float(history[ind]['Close']) - EMA) * mult + EMA
 
@@ -145,4 +145,14 @@ def relative_strength_index(symbol):
     rsi = 100 - (100 / (1 + rs))
     return rsi
 
-# def macd(symbol, day):
+
+def macd(symbol):
+    MACD = ema(symbol, 12) - ema(symbol, 26)
+
+    total = 0
+    # calculate 9-day average for signal line
+    for i in range(1, 10):
+        total += ema(symbol, 12, i) - ema(symbol, 26, i)
+
+    signal = total / 9.0
+    return MACD, signal
