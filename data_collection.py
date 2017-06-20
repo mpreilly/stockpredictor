@@ -2,6 +2,7 @@ from yahoo_finance import Share
 import csv
 from datetime import date
 from datetime import timedelta
+import random
 
 def get_random_stocks(num_train_stocks, num_test_stocks):
     all_companies = []
@@ -22,4 +23,4 @@ def get_random_stocks(num_train_stocks, num_test_stocks):
     return training_stocks, testing_stocks
 
 
-def gather_historical(stocks, start_date, end_date):
+# def gather_historical(stocks, start_date, end_date):

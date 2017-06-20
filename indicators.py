@@ -56,7 +56,10 @@ def bollinger_bands(symbol):
 
     #Gather extra data to make sure we get enough for 20 days counting days off
     start_date = date.today() - timedelta(weeks=8)
+    #try:
     history = share.get_historical(start_date.isoformat(), date.today().isoformat())
+    #except:
+        #return 0,0,0
     # Cut history list to get most recent 20 days
     history = history[:20]
 
